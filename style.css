@@ -1,0 +1,1586 @@
+/* ==========================================================================
+   DEAR DIARY 🎀 — Cozy pixel-art journaling app
+   Complete stylesheet
+   ========================================================================== */
+
+/* ==========================================================================
+   1. RESET & BASE
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body {
+  font-family: 'Quicksand', system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-weight: 500;
+  color: #5B4A6B;
+  background: linear-gradient(
+    165deg,
+    #FFF0F7 0%,
+    #F6E9FF 38%,
+    #E9F6FF 66%,
+    #E3F7EF 100%
+  );
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+h1, h2, h3, h4 {
+  font-family: 'Baloo 2', 'Quicksand', sans-serif;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.2px;
+  line-height: 1.15;
+}
+
+p { margin: 0; }
+
+button {
+  font-family: inherit;
+  font-weight: inherit;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: inherit;
+  padding: 0;
+}
+
+input, textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+canvas {
+  display: block;
+}
+
+/* Pixel-art rendering — critical for all sprites */
+.pix,
+canvas.pix,
+canvas {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+/* ==========================================================================
+   2. APP ROOT
+   ========================================================================== */
+#app {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   3. SCREEN SYSTEM (transitions)
+   ========================================================================== */
+.screen {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: screenIn 0.38s cubic-bezier(0.22, 1.2, 0.4, 1) both;
+}
+
+@keyframes screenIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.screen.out {
+  animation: screenOut 0.22s ease forwards;
+}
+
+@keyframes screenOut {
+  to {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.99);
+  }
+}
+
+/* ==========================================================================
+   4. SHARED LAYOUT HELPERS
+   ========================================================================== */
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.mt10 { margin-top: 10px; }
+.mt14 { margin-top: 14px; }
+.mt18 { margin-top: 18px; }
+.mb8  { margin-bottom: 8px; }
+.mb12 { margin-bottom: 12px; }
+.mb16 { margin-bottom: 16px; }
+
+.muted {
+  font-size: 12px;
+  color: #A98BC4;
+}
+
+.hidden { display: none !important; }
+
+/* ==========================================================================
+   5. TOP BAR
+   ========================================================================== */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 8px;
+  flex: 0 0 auto;
+  z-index: 3;
+}
+
+.topbar h2 {
+  font-size: 21px;
+  font-weight: 800;
+  color: #B85C8A;
+}
+
+.iconbtn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 4px 10px rgba(180, 150, 200, 0.32),
+    inset 0 1px 0 #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 700;
+  color: #A874C6;
+  flex: 0 0 auto;
+  transition: transform 0.15s ease, background 0.15s ease;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.iconbtn:hover {
+  background: rgba(255, 255, 255, 0.98);
+}
+
+.iconbtn:active {
+  transform: scale(0.9);
+}
+
+/* ==========================================================================
+   6. SCROLL CONTAINER
+   ========================================================================== */
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0 16px 26px;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+  background: rgba(200, 170, 220, 0.45);
+  border-radius: 3px;
+}
+
+.scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(200, 170, 220, 0.7);
+}
+
+/* ==========================================================================
+   7. BUTTONS
+   ========================================================================== */
+.btn {
+  border-radius: 22px;
+  padding: 12px 22px;
+  font-weight: 700;
+  font-size: 15px;
+  font-family: 'Baloo 2', sans-serif;
+  color: #fff;
+  box-shadow:
+    0 5px 0 rgba(0, 0, 0, 0.09),
+    0 8px 18px rgba(170, 130, 200, 0.28);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s;
+  white-space: nowrap;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+}
+
+.btn:hover {
+  filter: brightness(1.05);
+}
+
+.btn:active {
+  transform: translateY(3px);
+  box-shadow:
+    0 2px 0 rgba(0, 0, 0, 0.09),
+    0 4px 10px rgba(170, 130, 200, 0.24);
+}
+
+.btn.wide {
+  width: 100%;
+  max-width: 320px;
+}
+
+.btn:disabled,
+.btn.disabled {
+  opacity: 0.45;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Color variants */
+.btn.pink {
+  background: linear-gradient(180deg, #FFA8C8 0%, #FF7FAE 100%);
+}
+
+.btn.lav {
+  background: linear-gradient(180deg, #CDA9FF 0%, #AE7FF0 100%);
+}
+
+.btn.mint {
+  background: linear-gradient(180deg, #8FE3C0 0%, #5FCFA2 100%);
+}
+
+.btn.sky {
+  background: linear-gradient(180deg, #9ED4F5 0%, #6FB8E8 100%);
+}
+
+.btn.sun {
+  background: linear-gradient(180deg, #FFD070 0%, #F5A93F 100%);
+}
+
+.btn.rose {
+  background: linear-gradient(180deg, #F0A0D8 0%, #DB74BE 100%);
+}
+
+.btn.ghost {
+  background: rgba(255, 255, 255, 0.9);
+  color: #A874C6;
+  box-shadow: 0 4px 12px rgba(180, 150, 200, 0.3);
+  text-shadow: none;
+}
+
+.btn.ghost:active {
+  box-shadow: 0 2px 6px rgba(180, 150, 200, 0.28);
+}
+
+/* ==========================================================================
+   8. CARDS
+   ========================================================================== */
+.card {
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 24px;
+  padding: 16px;
+  box-shadow:
+    0 8px 24px rgba(180, 150, 200, 0.24),
+    inset 0 1px 0 #fff;
+  margin-bottom: 14px;
+}
+
+.card h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: #B85C8A;
+  margin-bottom: 10px;
+}
+
+/* ==========================================================================
+   9. TOAST
+   ========================================================================== */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(90, 60, 110, 0.92);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+  z-index: 9999;
+  box-shadow: 0 8px 22px rgba(80, 50, 100, 0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  max-width: calc(100vw - 40px);
+  text-align: center;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ==========================================================================
+   10. HOME SCREEN
+   ========================================================================== */
+.home {
+  overflow-y: auto;
+  padding: 0 0 24px;
+}
+
+.home-head {
+  text-align: center;
+  padding: 22px 16px 6px;
+  flex: 0 0 auto;
+}
+
+.home-head h1 {
+  font-size: 38px;
+  font-weight: 800;
+  background: linear-gradient(90deg, #FF8FB1 0%, #C9A7FF 50%, #7FD8B4 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 2px 0 rgba(255, 255, 255, 0.8));
+  letter-spacing: -0.5px;
+}
+
+.home-head p {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: #A98BC4;
+  letter-spacing: 0.4px;
+}
+
+.stage-wrap {
+  margin: 8px auto 0;
+  width: 100%;
+  max-width: 360px;
+  padding: 0 16px;
+}
+
+.stage {
+  position: relative;
+  border-radius: 26px;
+  overflow: hidden;
+  background: linear-gradient(180deg, #FFF7FC 0%, #F3E8FF 55%, #E4F6EE 100%);
+  box-shadow:
+    inset 0 -14px 26px rgba(200, 170, 225, 0.28),
+    0 10px 26px rgba(180, 150, 200, 0.22);
+}
+
+.stage canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.streak {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #C4823E;
+  margin: 12px 0 4px;
+}
+
+.streak span {
+  background: rgba(255, 255, 255, 0.8);
+  padding: 5px 14px;
+  border-radius: 16px;
+  box-shadow: 0 3px 10px rgba(220, 180, 140, 0.3);
+  display: inline-block;
+}
+
+.home-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px 0;
+}
+
+.home-actions .btn {
+  width: 100%;
+  max-width: 300px;
+}
+
+.home-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  max-width: 300px;
+}
+
+.home-row .btn {
+  flex: 1;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+/* ==========================================================================
+   11. CHIPS & SWATCHES
+   ========================================================================== */
+.chiprow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  padding: 7px 14px;
+  border-radius: 16px;
+  font-size: 12.5px;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.9);
+  color: #9B7BB5;
+  box-shadow: 0 3px 8px rgba(180, 150, 200, 0.2);
+  transition: transform 0.12s ease, background 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  background: rgba(255, 255, 255, 1);
+}
+
+.chip:active {
+  transform: scale(0.94);
+}
+
+.chip.on {
+  background: linear-gradient(180deg, #FFA8C8 0%, #FF7FAE 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 130, 180, 0.45);
+}
+
+.swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  position: relative;
+  box-shadow:
+    0 3px 8px rgba(150, 120, 180, 0.28),
+    inset 0 2px 0 rgba(255, 255, 255, 0.55);
+  transition: transform 0.12s ease, box-shadow 0.15s ease;
+  border: 3px solid transparent;
+  cursor: pointer;
+}
+
+.swatch:hover {
+  transform: translateY(-2px);
+}
+
+.swatch:active {
+  transform: scale(0.9);
+}
+
+.swatch.on {
+  border-color: #FF7FAE;
+  box-shadow:
+    0 0 0 3px rgba(255, 127, 174, 0.25),
+    0 4px 10px rgba(150, 120, 180, 0.3);
+}
+
+.swatch.small {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+}
+
+/* ==========================================================================
+   12. ITEM GRID (Wardrobe)
+   ========================================================================== */
+.grid2 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+  gap: 10px;
+}
+
+.itemcard {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 18px;
+  padding: 8px 6px 7px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 4px 12px rgba(180, 150, 200, 0.2);
+  transition: transform 0.12s ease, box-shadow 0.15s ease;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.itemcard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(180, 150, 200, 0.28);
+}
+
+.itemcard:active {
+  transform: scale(0.95);
+}
+
+.itemcard.on {
+  box-shadow:
+    0 0 0 3px #FF9EC4,
+    0 6px 16px rgba(255, 140, 190, 0.4);
+}
+
+.itemcard.locked {
+  filter: grayscale(0.75);
+  opacity: 0.62;
+  cursor: not-allowed;
+}
+
+.itemcard canvas {
+  width: 40px;
+  height: 40px;
+  image-rendering: pixelated;
+}
+
+.itemcard .nm {
+  font-size: 10px;
+  font-weight: 700;
+  color: #8B6CA8;
+  text-align: center;
+  line-height: 1.15;
+  padding: 0 2px;
+}
+
+.itemcard .lk {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 9px;
+  font-weight: 800;
+  color: #B07C4F;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 1px 5px;
+  box-shadow: 0 2px 5px rgba(180, 140, 90, 0.2);
+}
+
+/* ==========================================================================
+   13. AVATAR CREATOR
+   ========================================================================== */
+.preview-box {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 180px;
+  border-radius: 22px;
+  margin-bottom: 14px;
+  background: linear-gradient(180deg, #FFF7FC 0%, #EFE3FF 100%);
+  box-shadow: inset 0 -10px 22px rgba(200, 170, 225, 0.3);
+  padding-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.preview-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.6), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(255, 200, 225, 0.4), transparent 45%);
+  pointer-events: none;
+}
+
+.preview-box canvas {
+  width: 132px;
+  height: 132px;
+  image-rendering: pixelated;
+  position: relative;
+  z-index: 1;
+}
+
+/* ==========================================================================
+   14. JOURNAL SCREEN
+   ========================================================================== */
+.promptbox {
+  background: linear-gradient(135deg, #FFE6F2 0%, #EDE0FF 100%);
+  border-radius: 20px;
+  padding: 13px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #9A6FB0;
+  line-height: 1.4;
+  margin-bottom: 14px;
+  box-shadow: inset 0 1px 0 #fff;
+}
+
+/* Mood picker */
+.moods {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 0;
+}
+
+.mood {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 2px;
+  border-radius: 16px;
+  transition: transform 0.12s ease, background 0.15s ease, box-shadow 0.15s ease;
+  min-width: 0;
+}
+
+.mood:hover {
+  background: rgba(255, 240, 250, 0.7);
+}
+
+.mood:active {
+  transform: scale(0.92);
+}
+
+.mood.on {
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 12px rgba(190, 150, 220, 0.3);
+}
+
+.mood canvas {
+  width: 34px;
+  height: 34px;
+  image-rendering: pixelated;
+}
+
+.mood span {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #9B7BB5;
+  white-space: nowrap;
+}
+
+/* Doodle canvas */
+.doodle-wrap {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(180, 150, 200, 0.25);
+  background: #fff;
+  margin-bottom: 10px;
+  touch-action: none;
+}
+
+.doodle-wrap canvas {
+  width: 100%;
+  display: block;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+/* Tool row */
+.tools {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.tool {
+  width: 34px;
+  height: 34px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 3px 8px rgba(180, 150, 200, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: #9B7BB5;
+  transition: transform 0.12s ease, background 0.15s ease, color 0.15s ease;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.tool:hover {
+  background: rgba(255, 255, 255, 1);
+}
+
+.tool:active {
+  transform: scale(0.9);
+}
+
+.tool.on {
+  background: linear-gradient(180deg, #FFA8C8 0%, #FF7FAE 100%);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(255, 130, 180, 0.4);
+}
+
+.tool.dot {
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  box-shadow: 0 2px 6px rgba(150, 120, 180, 0.35);
+}
+
+.tool canvas {
+  width: 18px;
+  height: 18px;
+  image-rendering: pixelated;
+}
+
+/* Text area */
+textarea.entry {
+  width: 100%;
+  min-height: 110px;
+  resize: vertical;
+  border: none;
+  border-radius: 20px;
+  padding: 14px 16px;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  font-weight: 500;
+  color: #5B4A6B;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow:
+    inset 0 2px 6px rgba(190, 160, 215, 0.2),
+    0 4px 12px rgba(180, 150, 200, 0.16);
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+  transition: box-shadow 0.15s ease;
+}
+
+textarea.entry:focus {
+  box-shadow:
+    inset 0 2px 6px rgba(190, 160, 215, 0.25),
+    0 0 0 3px rgba(200, 160, 235, 0.25),
+    0 6px 16px rgba(180, 150, 200, 0.2);
+}
+
+textarea.entry::placeholder {
+  color: #C0A9D4;
+  font-weight: 500;
+}
+
+/* Calendar */
+.cal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  gap: 8px;
+}
+
+.cal-head span {
+  font-weight: 800;
+  font-size: 14px;
+  color: #B85C8A;
+  flex: 1;
+  text-align: center;
+}
+
+.cal-head .iconbtn {
+  width: 30px;
+  height: 30px;
+  font-size: 13px;
+}
+
+.cal {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.cal .dow {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #B9A2CE;
+  text-align: center;
+  padding: 2px 0;
+  letter-spacing: 0.3px;
+}
+
+.cal .day {
+  aspect-ratio: 1 / 1;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #A98BC4;
+  background: rgba(255, 255, 255, 0.55);
+  position: relative;
+  transition: transform 0.12s ease, background 0.15s ease;
+  cursor: pointer;
+  border: none;
+}
+
+.cal .day:hover:not(.empty) {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.cal .day:active:not(.empty) {
+  transform: scale(0.9);
+}
+
+.cal .day.empty {
+  background: transparent;
+  cursor: default;
+}
+
+.cal .day.has {
+  background: linear-gradient(180deg, #FFC7DE 0%, #FF9EC4 100%);
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(255, 140, 190, 0.4);
+}
+
+.cal .day.today {
+  outline: 2.5px solid #AE7FF0;
+  outline-offset: 1px;
+}
+
+.cal .day.sel {
+  background: linear-gradient(180deg, #CDA9FF 0%, #AE7FF0 100%);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(160, 120, 230, 0.4);
+}
+
+/* ==========================================================================
+   15. PET HOUSE
+   ========================================================================== */
+.petgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.petcard {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  padding: 8px 4px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  box-shadow: 0 4px 14px rgba(180, 150, 200, 0.22);
+  transition: transform 0.12s ease, box-shadow 0.15s ease;
+  cursor: pointer;
+}
+
+.petcard:hover {
+  transform: translateY(-2px);
+}
+
+.petcard:active {
+  transform: scale(0.94);
+}
+
+.petcard.on {
+  box-shadow:
+    0 0 0 3px #7FD8B4,
+    0 6px 16px rgba(110, 210, 170, 0.4);
+}
+
+.petcard canvas {
+  width: 62px;
+  height: 62px;
+  image-rendering: pixelated;
+}
+
+.petcard .nm {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #7E5E9C;
+  text-align: center;
+}
+
+/* Text inputs */
+input.txt {
+  width: 100%;
+  border: none;
+  border-radius: 16px;
+  padding: 11px 15px;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  color: #5B4A6B;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: inset 0 2px 6px rgba(190, 160, 215, 0.2);
+  outline: none;
+  user-select: text;
+  -webkit-user-select: text;
+  transition: box-shadow 0.15s ease;
+}
+
+input.txt:focus {
+  box-shadow:
+    inset 0 2px 6px rgba(190, 160, 215, 0.25),
+    0 0 0 3px rgba(200, 160, 235, 0.25);
+}
+
+input.txt::placeholder {
+  color: #C0A9D4;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   16. CARE ROUTINE
+   ========================================================================== */
+.care-stage {
+  position: relative;
+  border-radius: 26px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  background: linear-gradient(180deg, #FFF9FD 0%, #EFE6FF 100%);
+  box-shadow:
+    inset 0 -12px 24px rgba(200, 170, 225, 0.28),
+    0 10px 24px rgba(180, 150, 200, 0.22);
+  touch-action: none;
+}
+
+.care-stage canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  touch-action: none;
+}
+
+/* ==========================================================================
+   17. WALK SCENE
+   ========================================================================== */
+.walk {
+  background: #000;
+  overflow: hidden;
+}
+
+#walkCanvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+}
+
+.walk-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.walk-top > * {
+  pointer-events: auto;
+}
+
+.walk-hint {
+  flex: 1;
+  text-align: center;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #6A4E86;
+  background: rgba(255, 255, 255, 0.78);
+  border-radius: 14px;
+  padding: 6px 10px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 3px 10px rgba(120, 90, 150, 0.18);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.walk-ctrl {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 0 18px 22px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.walk-ctrl > * {
+  pointer-events: auto;
+}
+
+/* D-pad */
+.dpad {
+  display: grid;
+  grid-template-columns: repeat(3, 46px);
+  grid-template-rows: repeat(3, 46px);
+  gap: 3px;
+  opacity: 0.92;
+}
+
+.dpad button {
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+  color: #8B6CA8;
+  font-size: 15px;
+  font-weight: 800;
+  box-shadow: 0 3px 10px rgba(120, 90, 150, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: transform 0.1s ease, background 0.1s ease;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.dpad button:active,
+.dpad button.on {
+  background: rgba(255, 175, 210, 0.95);
+  color: #fff;
+  transform: scale(0.92);
+}
+
+.dpad .sp {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Side buttons */
+.walk-side {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+}
+
+.rbtn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 14px rgba(120, 90, 150, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  transition: transform 0.12s ease, background 0.12s ease;
+  font-size: 19px;
+  color: #8B6CA8;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.rbtn:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.rbtn:active {
+  transform: scale(0.9);
+}
+
+.rbtn.on {
+  background: rgba(255, 175, 210, 0.95);
+  color: #fff;
+}
+
+.rbtn canvas {
+  width: 28px;
+  height: 28px;
+  image-rendering: pixelated;
+}
+
+/* Emote wheel */
+.emote-wheel {
+  position: absolute;
+  left: 50%;
+  bottom: 120px;
+  transform: translateX(-50%);
+  display: none;
+  gap: 9px;
+  padding: 10px 12px;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 26px rgba(120, 90, 150, 0.32);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 6;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 92vw;
+}
+
+.emote-wheel.show {
+  display: flex;
+  animation: wheelIn 0.2s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+
+@keyframes wheelIn {
+  from {
+    transform: translateX(-50%) scale(0.7);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+  }
+}
+
+.emote-wheel button {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s ease, background 0.15s ease;
+  background: rgba(255, 240, 250, 0.9);
+  cursor: pointer;
+}
+
+.emote-wheel button:hover {
+  background: rgba(255, 220, 240, 1);
+}
+
+.emote-wheel button:active {
+  transform: scale(0.85);
+}
+
+.emote-wheel canvas {
+  width: 26px;
+  height: 26px;
+  image-rendering: pixelated;
+}
+
+/* ==========================================================================
+   18. EXIT SCREEN
+   ========================================================================== */
+.exit {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 24px;
+  overflow-y: auto;
+  position: relative;
+}
+
+#confetti {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.exit-inner {
+  position: relative;
+  z-index: 2;
+  max-width: 340px;
+  width: 100%;
+  margin: auto;
+}
+
+.exit h1 {
+  font-size: 34px;
+  line-height: 1.15;
+  color: #B85C8A;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 0 #fff;
+}
+
+.exit .sub {
+  font-size: 13.5px;
+  color: #A98BC4;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.recap {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 22px;
+  padding: 16px;
+  margin-bottom: 18px;
+  box-shadow: 0 8px 24px rgba(180, 150, 200, 0.25);
+  text-align: left;
+}
+
+.recap .r {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #7E5E9C;
+}
+
+.recap .r .tick {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  color: #fff;
+  background: linear-gradient(180deg, #8FE3C0 0%, #5FCFA2 100%);
+  flex: 0 0 auto;
+  box-shadow: 0 2px 6px rgba(95, 207, 162, 0.4);
+}
+
+.recap .r.no .tick {
+  background: linear-gradient(180deg, #E4D8F0 0%, #CBB9DE 100%);
+  box-shadow: none;
+}
+
+.recap .r.no {
+  color: #B9A2CE;
+}
+
+/* ==========================================================================
+   19. UTILITY ANIMATIONS
+   ========================================================================== */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25%      { transform: rotate(-4deg); }
+  75%      { transform: rotate(4deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.06); }
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0.4; transform: scale(0.9); }
+  50%      { opacity: 1; transform: scale(1.15); }
+}
+
+.float { animation: float 3s ease-in-out infinite; }
+.wiggle { animation: wiggle 1.4s ease-in-out infinite; }
+.pulse { animation: pulse 2s ease-in-out infinite; }
+.sparkle { animation: sparkle 1.8s ease-in-out infinite; }
+
+/* ==========================================================================
+   20. RESPONSIVE — small phones
+   ========================================================================== */
+@media (max-width: 380px) {
+  .home-head h1 { font-size: 32px; }
+  .home-head p { font-size: 11.5px; }
+
+  .btn {
+    padding: 11px 18px;
+    font-size: 14px;
+  }
+
+  .dpad {
+    grid-template-columns: repeat(3, 40px);
+    grid-template-rows: repeat(3, 40px);
+  }
+
+  .rbtn {
+    width: 46px;
+    height: 46px;
+    font-size: 17px;
+  }
+
+  .emote-wheel {
+    bottom: 108px;
+    gap: 7px;
+    padding: 8px 10px;
+  }
+
+  .emote-wheel button {
+    width: 38px;
+    height: 38px;
+  }
+
+  .emote-wheel canvas {
+    width: 22px;
+    height: 22px;
+  }
+
+  .grid2 {
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 8px;
+  }
+
+  .petcard canvas {
+    width: 54px;
+    height: 54px;
+  }
+
+  .moods { gap: 3px; }
+  .mood canvas { width: 30px; height: 30px; }
+  .mood span { font-size: 8.5px; }
+}
+
+/* ==========================================================================
+   21. RESPONSIVE — landscape phones
+   ========================================================================== */
+@media (max-height: 520px) and (orientation: landscape) {
+  .walk-ctrl {
+    padding: 0 14px 12px;
+  }
+
+  .dpad {
+    grid-template-columns: repeat(3, 38px);
+    grid-template-rows: repeat(3, 38px);
+  }
+
+  .emote-wheel {
+    bottom: 76px;
+  }
+
+  .walk-hint {
+    font-size: 10px;
+  }
+}
+
+/* ==========================================================================
+   22. TABLET & DESKTOP
+   ========================================================================== */
+@media (min-width: 720px) {
+  .home-head h1 { font-size: 44px; }
+  .stage-wrap { max-width: 420px; }
+  .home-actions .btn,
+  .home-row { max-width: 380px; }
+
+  .grid2 {
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  }
+
+  .petgrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .petcard canvas {
+    width: 72px;
+    height: 72px;
+  }
+
+  .preview-box { height: 220px; }
+  .preview-box canvas { width: 160px; height: 160px; }
+}
+
+@media (min-width: 1024px) {
+  .screen > .topbar,
+  .screen > .scroll {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+  }
+
+  .home .home-head,
+  .home .stage-wrap,
+  .home .streak,
+  .home .home-actions {
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+  }
+}
+
+/* ==========================================================================
+   23. ACCESSIBILITY & MOTION
+   ========================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Focus rings for keyboard users */
+button:focus-visible,
+.chip:focus-visible,
+.swatch:focus-visible,
+.itemcard:focus-visible,
+.cal .day:focus-visible,
+.mood:focus-visible {
+  outline: 3px solid #AE7FF0;
+  outline-offset: 2px;
+}
+
+/* Prevent text selection on decorative elements */
+.home-head,
+.home-head h1,
+.home-head p,
+.streak,
+.iconbtn,
+.chip,
+.swatch,
+.mood span,
+.itemcard .nm,
+.petcard .nm,
+.recap,
+.cal {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Allow selection only in text fields */
+textarea,
+input.txt {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* ==========================================================================
+   24. SAFE AREAS (notched phones)
+   ========================================================================== */
+@supports (padding: env(safe-area-inset-top)) {
+  .topbar,
+  .walk-top {
+    padding-top: calc(14px + env(safe-area-inset-top));
+  }
+
+  .walk-ctrl {
+    padding-bottom: calc(22px + env(safe-area-inset-bottom));
+  }
+
+  .toast {
+    bottom: calc(26px + env(safe-area-inset-bottom));
+  }
+}
+
+/* ==========================================================================
+   25. DARK MODE (soft, gentle — keeps pastel vibe)
+   ========================================================================== */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: linear-gradient(
+      165deg,
+      #2A1E36 0%,
+      #241B30 40%,
+      #1E2430 70%,
+      #1E2A28 100%
+    );
+    color: #E5D8F0;
+  }
+
+  .card,
+  .itemcard,
+  .petcard,
+  .recap,
+  .chip,
+  .iconbtn,
+  .tool,
+  .rbtn,
+  .dpad button,
+  .emote-wheel,
+  .walk-hint {
+    background: rgba(50, 36, 66, 0.85);
+    color: #E5D8F0;
+  }
+
+  .card h3,
+  .topbar h2,
+  .cal-head span {
+    color: #FF9EC4;
+  }
+
+  input.txt,
+  textarea.entry {
+    background: rgba(50, 36, 66, 0.9);
+    color: #E5D8F0;
+  }
+
+  input.txt::placeholder,
+  textarea.entry::placeholder {
+    color: #9B7BB5;
+  }
+
+  .btn.ghost {
+    background: rgba(50, 36, 66, 0.9);
+    color: #CDA9FF;
+  }
+
+  .mood.on {
+    background: rgba(70, 50, 90, 0.9);
+  }
+
+  .cal .day {
+    background: rgba(50, 36, 66, 0.6);
+    color: #B9A2CE;
+  }
+
+  .cal .day.empty {
+    background: transparent;
+  }
+
+  .promptbox {
+    background: linear-gradient(135deg, #3A2848 0%, #322545 100%);
+    color: #D9C2E8;
+  }
+}
+
+/* ==========================================================================
+   26. PRINT (hide everything — it's an app)
+   ========================================================================== */
+@media print {
+  #app,
+  .toast {
+    display: none !important;
+  }
+}
